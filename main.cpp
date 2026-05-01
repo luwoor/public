@@ -40,6 +40,25 @@ const int LEFT_PANEL_WIDTH = 300;
 const int MID_PANEL_WIDTH = 200;
 const int CONTROL_PADDING = 8;
 
+// ===================== 中文常量（16进制硬编码，绝对不乱码） =====================
+#define TXT_NOVEL_NAME      "\xE5\xB0\x8F\xE8\xAF\x9D\xE5\x90\x8D"
+#define TXT_WORLD_VIEW      "\xE4\xB8\x96\xE7\x95\x8C\xE8\xA7\x82"
+#define TXT_CHARACTER       "\xE4\xBA\xBA\xE7\x89\xA9"
+#define TXT_OUTLINE         "\xE5\xA4\xA7\xE7\xBA\xB2"
+#define TXT_FORESHAWDOW     "\xE4\xBC\x87\xE7\xAC\x86"
+#define TXT_INSPIRE         "\xE7\x81\xB5\xE6\x84\x9F"
+#define TXT_CHAPTER_LIST    "\xE7\xAB\xA0\xE8\x8A\x82\xE5\x88\x97\xE8\xA1\xA8"
+#define TXT_CHAPTER_TITLE    "\xE6\xA0\x87\xE8\x8A\x82\xE6\xA0\x87\xE9\xA2\x98"
+#define TXT_CHAPTER_CONTENT  "\xE6\xAD\xA3\xE6\x96\x87"
+#define TXT_SAVE_CHAPTER     "\xE4\xBF\x9D\xE5\xAD\x98\xE7\xAB\xA0\xE8\x8A\x82"
+#define TXT_SAVE_PROJECT     "\xE4\xBF\x9D\xE5\xAD\x98\xE9\xA1\xB9\xE7\x9B\xAE"
+#define TXT_EXPORT_TXT       "\xE5\xAF\xBC\xE5\x87\xBA\xTXT"
+#define TXT_RESET_ALL        "\xE4\xB8\x80\xE9\x94\xAE\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96"
+#define TXT_THEME_TOGGLE     "\xE6\x98\x8E\xE6\x9A\x97\xE5\x88\x87\xE6\x8D\xA2"
+#define TXT_CURR_WORD_COUNT  "\xE5\xBD\x93\xE5\x89\x8D\xE7\xAB\xA0\xE8\x8A\x82\xEF\xBC\x9A0\xE5\xAD\x97"
+#define TXT_TOTAL_WORD_COUNT "\xE5\x85\xA8\xE4\xB9\xA6\xE6\x80\xBB\xE5\xAD\x97\xEF\xBC\x9A0\xE5\xAD\x97"
+#define TXT_APP_TITLE        "\xE5\xB0\x8F\xE8\xAF\x9D\xE5\x88\x9B\xE4\xBD\x9C\xE5\x99\xA8 \xC2\xB7 \xE7\xB9\xAF\xE7\xBA\xAF\xC2\x2B\x2B\xE5\x8E\x9F\xE7\x94\x9F\xE5\x8E\x9F\xE7\x89\x88\xE7\x89\x88\xE7\x89\x88\xE7\x89\x88"
+
 // ===================== 字数统计 =====================
 int CountValidWord(const std::string& text)
 {
@@ -249,49 +268,49 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // ========== 左侧 ==========
         int leftY = CONTROL_PADDING;
-        CreateWindowA("STATIC", "📖 小说名", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_NOVEL_NAME, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditNovelName = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 70, leftY, LEFT_PANEL_WIDTH - 80, 24, hWnd, NULL, NULL, NULL);
         leftY += 36;
 
-        CreateWindowA("STATIC", "🌍 世界观", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_WORLD_VIEW, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditWorldView = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CONTROL_PADDING, leftY + 24, LEFT_PANEL_WIDTH - CONTROL_PADDING * 2, 100, hWnd, NULL, NULL, NULL);
         leftY += 132;
 
-        CreateWindowA("STATIC", "👤 人物", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_CHARACTER, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditCharacter = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CONTROL_PADDING, leftY + 24, LEFT_PANEL_WIDTH - CONTROL_PADDING * 2, 100, hWnd, NULL, NULL, NULL);
         leftY += 132;
 
-        CreateWindowA("STATIC", "📝 大纲", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_OUTLINE, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditOutline = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CONTROL_PADDING, leftY + 24, LEFT_PANEL_WIDTH - CONTROL_PADDING * 2, 100, hWnd, NULL, NULL, NULL);
         leftY += 132;
 
-        CreateWindowA("STATIC", "🔍 伏笔", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_FORESHAWDOW, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditForeshadow = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CONTROL_PADDING, leftY + 24, LEFT_PANEL_WIDTH - CONTROL_PADDING * 2, 100, hWnd, NULL, NULL, NULL);
         leftY += 132;
 
-        CreateWindowA("STATIC", "💡 灵感", WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_INSPIRE, WS_CHILD | WS_VISIBLE, CONTROL_PADDING, leftY, 60, 20, hWnd, NULL, NULL, NULL);
         hEditInspire = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CONTROL_PADDING, leftY + 24, LEFT_PANEL_WIDTH - CONTROL_PADDING * 2, 100, hWnd, NULL, NULL, NULL);
 
         // ========== 中间 ==========
         int midX = LEFT_PANEL_WIDTH + CONTROL_PADDING * 2;
-        CreateWindowA("STATIC", "📖 章节列表", WS_CHILD | WS_VISIBLE, midX, CONTROL_PADDING, MID_PANEL_WIDTH, 20, hWnd, NULL, NULL, NULL);
+        CreateWindowA("STATIC", TXT_CHAPTER_LIST, WS_CHILD | WS_VISIBLE, midX, CONTROL_PADDING, MID_PANEL_WIDTH, 20, hWnd, NULL, NULL, NULL);
         hListChapterBox = CreateWindowA("LISTBOX", "", WS_CHILD | WS_VISIBLE | LBS_NOTIFY, midX, 30, MID_PANEL_WIDTH, WIN_HEIGHT - 80, hWnd, (HMENU)ID_LIST_CHAPTER, NULL, NULL);
 
         // ========== 右侧 ==========
         int rightX = LEFT_PANEL_WIDTH + MID_PANEL_WIDTH + CONTROL_PADDING * 3;
         int rightCtrlWidth = WIN_WIDTH - rightX - CONTROL_PADDING;
 
-        CreateWindowA("BUTTON", "💾 保存章节", WS_CHILD | WS_VISIBLE, rightX, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_CHAP, NULL, NULL);
-        CreateWindowA("BUTTON", "📦 保存项目", WS_CHILD | WS_VISIBLE, rightX + 115, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_PROJ, NULL, NULL);
-        CreateWindowA("BUTTON", "📄 导出TXT", WS_CHILD | WS_VISIBLE, rightX + 230, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_EXPORT_TXT, NULL, NULL);
-        CreateWindowA("BUTTON", "🔄 一键初始化", WS_CHILD | WS_VISIBLE, rightX + 345, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_RESET, NULL, NULL);
-        CreateWindowA("BUTTON", "🌓 明暗切换", WS_CHILD | WS_VISIBLE, rightX + 460, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_THEME, NULL, NULL);
+        CreateWindowA("BUTTON", TXT_SAVE_CHAPTER, WS_CHILD | WS_VISIBLE, rightX, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_CHAP, NULL, NULL);
+        CreateWindowA("BUTTON", TXT_SAVE_PROJECT, WS_CHILD | WS_VISIBLE, rightX + 115, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_PROJ, NULL, NULL);
+        CreateWindowA("BUTTON", TXT_EXPORT_TXT, WS_CHILD | WS_VISIBLE, rightX + 230, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_EXPORT_TXT, NULL, NULL);
+        CreateWindowA("BUTTON", TXT_RESET_ALL, WS_CHILD | WS_VISIBLE, rightX + 345, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_RESET, NULL, NULL);
+        CreateWindowA("BUTTON", TXT_THEME_TOGGLE, WS_CHILD | WS_VISIBLE, rightX + 460, CONTROL_PADDING, 110, 28, hWnd, (HMENU)ID_BTN_THEME, NULL, NULL);
 
         hEditChapterTitle = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER, rightX, 40, rightCtrlWidth, 24, hWnd, NULL, NULL, NULL);
         hEditChapterContent = CreateWindowA("EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_WANTRETURN, rightX, 72, rightCtrlWidth, WIN_HEIGHT - 180, hWnd, NULL, NULL, NULL);
 
-        hLabelWordCountCurr = CreateWindowA("STATIC", "当前章节：0 字", WS_CHILD | WS_VISIBLE, rightX, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
-        hLabelWordCountTotal = CreateWindowA("STATIC", "全书总字数：0 字", WS_CHILD | WS_VISIBLE, rightX + 220, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
+        hLabelWordCountCurr = CreateWindowA("STATIC", TXT_CURR_WORD_COUNT, WS_CHILD | WS_VISIBLE, rightX, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
+        hLabelWordCountTotal = CreateWindowA("STATIC", TXT_TOTAL_WORD_COUNT, WS_CHILD | WS_VISIBLE, rightX + 220, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
         break;
     }
 
@@ -363,7 +382,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     HWND hWnd = CreateWindowExA(
         0,
         WINDOW_CLASS_NAME,
-        "小说创作器 · 纯C++原生完整版",
+        TXT_APP_TITLE,
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT,
         1200, 700,
