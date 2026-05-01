@@ -4,17 +4,18 @@
 #include <string>
 #include <vector>
 
+// 链接系统原生库
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "shlwapi.lib")
 
-// ========== 全局控件句柄 ==========
+// ===================== 全局控件句柄 =====================
 HWND hMainWnd;
 HWND hEditNovelName, hEditWorld, hEditChar, hEditOutline, hEditForeshadow, hEditInspire;
 HWND hListChapter, hEditChapTitle, hEditChapContent;
 HWND hBtnSaveChap, hBtnSaveProj, hBtnExportTxt, hBtnReset, hBtnTheme;
 HWND hLabelCurrWord, hLabelTotalWord;
 
-// ========== 数据结构 ==========
+// ===================== 数据结构 =====================
 struct Chapter {
     std::wstring title;
     std::wstring content;
@@ -23,28 +24,29 @@ std::vector<Chapter> g_Chapters;
 int g_CurrChapIndex = -1;
 bool g_IsDarkMode = false;
 
-// ========== 尺寸常量 ==========
+// ===================== 尺寸常量 =====================
 const int WIDTH_LEFT = 300;
 const int WIDTH_MID = 200;
 const int PADDING = 8;
 
-// ========== 工具函数：宽/多字节互转 ==========
+// ===================== 工具函数：宽/多字节互转 =====================
 std::string W2A(const std::wstring& wstr) {
     if (wstr.empty()) return "";
-    int size = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), NULL, 0, NULL, NULL);
     std::string str(size, 0);
-    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &str[0], size, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), &str[0], size, NULL, NULL);
     return str;
 }
+
 std::wstring A2W(const std::string& str) {
     if (str.empty()) return L"";
-    int size = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), NULL, 0);
     std::wstring wstr(size, 0);
-    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstr[0], size);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), &wstr[0], size);
     return wstr;
 }
 
-// ========== 字数统计 ==========
+// ===================== 字数统计 =====================
 int CountWord(const std::wstring& text) {
     int cnt = 0;
     for (wchar_t c : text) {
@@ -52,22 +54,25 @@ int CountWord(const std::wstring& text) {
     }
     return cnt;
 }
+
 void UpdateWordCount() {
     wchar_t buf[64000] = {0};
-    GetWindowText(hEditChapContent, buf, 64000);
+    GetWindowTextW(hEditChapContent, buf, 64000);
     int curr = CountWord(buf);
+    
     wchar_t currTxt[64];
     swprintf(currTxt, L"当前章节：%d 字", curr);
-    SetWindowText(hLabelCurrWord, currTxt);
+    SetWindowTextW(hLabelCurrWord, currTxt);
 
     int total = 0;
     for (auto& ch : g_Chapters) total += CountWord(ch.content);
+    
     wchar_t totalTxt[64];
     swprintf(totalTxt, L"全书总字数：%d 字", total);
-    SetWindowText(hLabelTotalWord, totalTxt);
+    SetWindowTextW(hLabelTotalWord, totalTxt);
 }
 
-// ========== 章节操作 ==========
+// ===================== 章节操作 =====================
 void RefreshChapterList() {
     SendMessage(hListChapter, LB_RESETCONTENT, 0, 0);
     for (int i = 0; i < g_Chapters.size(); i++) {
@@ -77,41 +82,43 @@ void RefreshChapterList() {
     }
     UpdateWordCount();
 }
+
 void LoadChapter(int idx) {
     g_CurrChapIndex = idx;
-    SetWindowText(hEditChapTitle, g_Chapters[idx].title.c_str());
-    SetWindowText(hEditChapContent, g_Chapters[idx].content.c_str());
+    SetWindowTextW(hEditChapTitle, g_Chapters[idx].title.c_str());
+    SetWindowTextW(hEditChapContent, g_Chapters[idx].content.c_str());
 }
+
 void SaveChapter() {
     wchar_t t[256], c[64000];
-    GetWindowText(hEditChapTitle, t, 256);
-    GetWindowText(hEditChapContent, c, 64000);
+    GetWindowTextW(hEditChapTitle, t, 256);
+    GetWindowTextW(hEditChapContent, c, 64000);
     std::wstring title = t, content = c;
 
     if (title.empty()) {
-        MessageBox(hMainWnd, L"请输入章节标题！", L"提示", MB_ICONWARNING);
+        MessageBoxW(hMainWnd, L"请输入章节标题！", L"提示", MB_ICONWARNING);
         return;
     }
     if (g_CurrChapIndex < 0) g_Chapters.push_back({title, content});
     else g_Chapters[g_CurrChapIndex] = {title, content};
 
     RefreshChapterList();
-    SetWindowText(hEditChapTitle, L"");
-    SetWindowText(hEditChapContent, L"");
+    SetWindowTextW(hEditChapTitle, L"");
+    SetWindowTextW(hEditChapContent, L"");
     g_CurrChapIndex = -1;
-    MessageBox(hMainWnd, L"✅ 章节保存成功", L"成功", MB_OK);
+    MessageBoxW(hMainWnd, L"✅ 章节保存成功", L"成功", MB_OK);
 }
 
-// ========== 文件操作（纯原生API，零依赖） ==========
+// ===================== 文件操作（纯原生API） =====================
 void ExportTXT() {
     wchar_t novelName[256];
-    GetWindowText(hEditNovelName, novelName, 256);
+    GetWindowTextW(hEditNovelName, novelName, 256);
     std::wstring name = novelName;
     if (name.empty()) name = L"未命名小说";
 
     wchar_t path[MAX_PATH] = {0};
-    OPENFILENAME ofn = {sizeof(ofn), hMainWnd, NULL, L"文本文件(*.txt)\0*.txt\0", NULL, 0, L"导出小说", OFN_OVERWRITEPROMPT, L"txt", path, MAX_PATH};
-    if (!GetSaveFileName(&ofn)) return;
+    OPENFILENAMEW ofn = {sizeof(ofn), hMainWnd, NULL, L"文本文件(*.txt)\0*.txt\0", NULL, 0, L"导出小说", OFN_OVERWRITEPROMPT, L"txt", path, MAX_PATH};
+    if (!GetSaveFileNameW(&ofn)) return;
 
     std::wstring txt = L"《" + name + L"》\r\n\r\n";
     for (int i = 0; i < g_Chapters.size(); i++) {
@@ -126,24 +133,25 @@ void ExportTXT() {
         DWORD w;
         WriteFile(hFile, utf8.c_str(), (DWORD)utf8.size(), &w, NULL);
         CloseHandle(hFile);
-        MessageBox(hMainWnd, L"✅ TXT导出成功", L"成功", MB_OK);
+        MessageBoxW(hMainWnd, L"✅ TXT导出成功", L"成功", MB_OK);
     }
 }
+
 void SaveProject() {
     wchar_t path[MAX_PATH] = {0};
-    OPENFILENAME ofn = {sizeof(ofn), hMainWnd, NULL, L"项目文件(*.nov)\0*.nov\0", NULL, 0, L"保存项目", OFN_OVERWRITEPROMPT, L"nov", path, MAX_PATH};
-    if (!GetSaveFileName(&ofn)) return;
+    OPENFILENAMEW ofn = {sizeof(ofn), hMainWnd, NULL, L"项目文件(*.nov)\0*.nov\0", NULL, 0, L"保存项目", OFN_OVERWRITEPROMPT, L"nov", path, MAX_PATH};
+    if (!GetSaveFileNameW(&ofn)) return;
 
     // 读取所有内容
     wchar_t buf[64000];
-    GetWindowText(hEditNovelName, buf, 256); std::wstring novelName = buf;
-    GetWindowText(hEditWorld, buf, 64000); std::wstring world = buf;
-    GetWindowText(hEditChar, buf, 64000); std::wstring charTxt = buf;
-    GetWindowText(hEditOutline, buf, 64000); std::wstring outline = buf;
-    GetWindowText(hEditForeshadow, buf, 64000); std::wstring foreshadow = buf;
-    GetWindowText(hEditInspire, buf, 64000); std::wstring inspire = buf;
+    GetWindowTextW(hEditNovelName, buf, 256); std::wstring novelName = buf;
+    GetWindowTextW(hEditWorld, buf, 64000); std::wstring world = buf;
+    GetWindowTextW(hEditChar, buf, 64000); std::wstring charTxt = buf;
+    GetWindowTextW(hEditOutline, buf, 64000); std::wstring outline = buf;
+    GetWindowTextW(hEditForeshadow, buf, 64000); std::wstring foreshadow = buf;
+    GetWindowTextW(hEditInspire, buf, 64000); std::wstring inspire = buf;
 
-    // 写入（用简单分隔符，不用JSON）
+    // 写入（简单分隔符，零依赖）
     std::wstring data = novelName + L"\n###SPLIT###\n" + world + L"\n###SPLIT###\n" + charTxt + L"\n###SPLIT###\n" + outline + L"\n###SPLIT###\n" + foreshadow + L"\n###SPLIT###\n" + inspire;
     for (auto& ch : g_Chapters) data += L"\n###CHAP###\n" + ch.title + L"\n###CONT###\n" + ch.content;
 
@@ -153,28 +161,30 @@ void SaveProject() {
         DWORD w;
         WriteFile(hFile, utf8.c_str(), (DWORD)utf8.size(), &w, NULL);
         CloseHandle(hFile);
-        MessageBox(hMainWnd, L"✅ 项目保存成功", L"成功", MB_OK);
+        MessageBoxW(hMainWnd, L"✅ 项目保存成功", L"成功", MB_OK);
     }
 }
+
 void ResetAll() {
-    if (MessageBox(hMainWnd, L"⚠️ 确定清空所有？", L"确认", MB_YESNO | MB_ICONWARNING) != IDYES) return;
-    SetWindowText(hEditNovelName, L"");
-    SetWindowText(hEditWorld, L"");
-    SetWindowText(hEditChar, L"");
-    SetWindowText(hEditOutline, L"");
-    SetWindowText(hEditForeshadow, L"");
-    SetWindowText(hEditInspire, L"");
+    if (MessageBoxW(hMainWnd, L"⚠️ 确定清空所有？", L"确认", MB_YESNO | MB_ICONWARNING) != IDYES) return;
+    SetWindowTextW(hEditNovelName, L"");
+    SetWindowTextW(hEditWorld, L"");
+    SetWindowTextW(hEditChar, L"");
+    SetWindowTextW(hEditOutline, L"");
+    SetWindowTextW(hEditForeshadow, L"");
+    SetWindowTextW(hEditInspire, L"");
     g_Chapters.clear();
     RefreshChapterList();
-    SetWindowText(hEditChapTitle, L"");
-    SetWindowText(hEditChapContent, L"");
+    SetWindowTextW(hEditChapTitle, L"");
+    SetWindowTextW(hEditChapContent, L"");
 }
+
 void ToggleTheme() {
     g_IsDarkMode = !g_IsDarkMode;
     InvalidateRect(hMainWnd, NULL, TRUE);
 }
 
-// ========== 窗口回调 ==========
+// ===================== 窗口回调函数（全宽字符版本） =====================
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_CREATE: {
@@ -183,7 +193,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         RECT scr; GetWindowRect(GetDesktopWindow(), &scr);
         SetWindowPos(hWnd, NULL, (scr.right-W)/2, (scr.bottom-H)/2, W, H, 0);
 
-        // 左侧面板
+        // 左侧编辑区
         hEditNovelName = CreateWindowW(L"EDIT", L"", WS_CHILD|WS_VISIBLE|WS_BORDER, PADDING, PADDING, WIDTH_LEFT-PADDING*2, 24, hWnd, NULL, NULL, NULL);
         hEditWorld = CreateWindowW(L"EDIT", L"", WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE, PADDING, 40, WIDTH_LEFT-PADDING*2, 100, hWnd, NULL, NULL, NULL);
         hEditChar = CreateWindowW(L"EDIT", L"", WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE, PADDING, 148, WIDTH_LEFT-PADDING*2, 100, hWnd, NULL, NULL, NULL);
@@ -217,10 +227,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 104: ResetAll(); break;
         case 105: ToggleTheme(); break;
         }
+        // 章节列表点击
         if (HIWORD(wParam) == LBN_SELCHANGE) {
             int sel = SendMessage(hListChapter, LB_GETCURSEL, 0, 0);
             if (sel != LB_ERR) LoadChapter(sel);
         }
+        // 正文编辑更新字数
         if (HIWORD(wParam) == EN_CHANGE) UpdateWordCount();
         break;
     }
@@ -232,25 +244,46 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         EndPaint(hWnd, &ps);
         break;
     }
-    case WM_DESTROY: PostQuitMessage(0); break;
-    default: return DefWindowProc(hWnd, msg, wParam, lParam);
+    case WM_DESTROY: 
+        PostQuitMessage(0); 
+        break;
+    default: 
+        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
     return 0;
 }
 
-// ========== 入口 ==========
-int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int nCmd) {
+// ===================== 程序入口（严格匹配宽字符类型） =====================
+int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, PWSTR lpCmd, int nCmdShow) {
+    (void)hPrevInst; (void)lpCmd;
+
+    // 初始化通用控件
     INITCOMMONCONTROLSEX icex = {sizeof(icex), ICC_STANDARD_CLASSES};
     InitCommonControlsEx(&icex);
 
-    const wchar_t CLASS[] = L"NovelWin32";
-    WNDCLASSW wc = {0, WndProc, hInst, 0, 0, LoadCursor(NULL, IDC_ARROW), NULL, NULL, NULL, CLASS};
+    // 注册窗口类（全宽字符）
+    const wchar_t CLASS_NAME[] = L"NovelWin32";
+    WNDCLASSW wc = {0};
+    wc.lpfnWndProc = WndProc;
+    wc.hInstance = hInst;
+    wc.lpszClassName = CLASS_NAME;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassW(&wc);
 
-    HWND hWnd = CreateWindowExW(0, CLASS, L"小说创作器 · 纯C++原生", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 700, NULL, NULL, hInst, NULL);
-    ShowWindow(hWnd, nCmd);
+    // 创建主窗口
+    HWND hWnd = CreateWindowExW(
+        0, CLASS_NAME, L"小说创作器 · 纯C++原生", 
+        WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1200, 700,
+        NULL, NULL, hInst, NULL
+    );
+    ShowWindow(hWnd, nCmdShow);
 
+    // 消息循环
     MSG m;
-    while (GetMessage(&m, NULL, 0, 0)) { TranslateMessage(&m); DispatchMessage(&m); }
+    while (GetMessage(&m, NULL, 0, 0)) {
+        TranslateMessage(&m);
+        DispatchMessage(&m);
+    }
     return 0;
 }
