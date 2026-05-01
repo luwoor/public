@@ -15,6 +15,15 @@ HWND hListChapter, hEditChapTitle, hEditChapContent;
 HWND hBtnSaveChap, hBtnSaveProj, hBtnExportTxt, hBtnReset, hBtnTheme;
 HWND hLabelCurrWord, hLabelTotalWord;
 
+// ===================== 菜单ID（纯数字，无类型转换） =====================
+enum MENU_ID {
+    ID_BTN_SAVE_CHAP = 101,
+    ID_BTN_SAVE_PROJ = 102,
+    ID_BTN_EXPORT = 103,
+    ID_BTN_RESET = 104,
+    ID_BTN_THEME = 105
+};
+
 // ===================== 数据结构 =====================
 struct Chapter {
     std::wstring title;
@@ -184,7 +193,7 @@ void ToggleTheme() {
     InvalidateRect(hMainWnd, NULL, TRUE);
 }
 
-// ===================== 窗口回调函数（全宽字符版本） =====================
+// ===================== 窗口回调函数（严格类型匹配） =====================
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_CREATE: {
@@ -205,13 +214,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CreateWindowW(L"STATIC", L"📖 章节列表", WS_CHILD|WS_VISIBLE, WIDTH_LEFT+PADDING*2, PADDING, WIDTH_MID, 20, hWnd, NULL, NULL, NULL);
         hListChapter = CreateWindowW(L"LISTBOX", L"", WS_CHILD|WS_VISIBLE|LBS_NOTIFY, WIDTH_LEFT+PADDING*2, 30, WIDTH_MID, H-80, hWnd, NULL, NULL, NULL);
 
-        // 右侧按钮+编辑区
+        // 右侧按钮+编辑区（菜单ID严格使用枚举数字，无字符转换）
         int rx = WIDTH_LEFT + WIDTH_MID + PADDING*3;
-        hBtnSaveChap = CreateWindowW(L"BUTTON", L"💾 保存章节", WS_CHILD|WS_VISIBLE, rx, PADDING, 110, 28, hWnd, (HMENU)101, NULL, NULL);
-        hBtnSaveProj = CreateWindowW(L"BUTTON", L"📦 保存项目", WS_CHILD|WS_VISIBLE, rx+115, PADDING, 110, 28, hWnd, (HMENU)102, NULL, NULL);
-        hBtnExportTxt = CreateWindowW(L"BUTTON", L"📄 导出TXT", WS_CHILD|WS_VISIBLE, rx+230, PADDING, 110, 28, hWnd, (HMENU)103, NULL, NULL);
-        hBtnReset = CreateWindowW(L"BUTTON", L"🔄 一键初始化", WS_CHILD|WS_VISIBLE, rx+345, PADDING, 110, 28, hWnd, (HMENU)104, NULL, NULL);
-        hBtnTheme = CreateWindowW(L"BUTTON", L"🌓 明暗切换", WS_CHILD|WS_VISIBLE, rx+460, PADDING, 110, 28, hWnd, (HMENU)105, NULL, NULL);
+        hBtnSaveChap = CreateWindowW(L"BUTTON", L"💾 保存章节", WS_CHILD|WS_VISIBLE, rx, PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_CHAP, NULL, NULL);
+        hBtnSaveProj = CreateWindowW(L"BUTTON", L"📦 保存项目", WS_CHILD|WS_VISIBLE, rx+115, PADDING, 110, 28, hWnd, (HMENU)ID_BTN_SAVE_PROJ, NULL, NULL);
+        hBtnExportTxt = CreateWindowW(L"BUTTON", L"📄 导出TXT", WS_CHILD|WS_VISIBLE, rx+230, PADDING, 110, 28, hWnd, (HMENU)ID_BTN_EXPORT, NULL, NULL);
+        hBtnReset = CreateWindowW(L"BUTTON", L"🔄 一键初始化", WS_CHILD|WS_VISIBLE, rx+345, PADDING, 110, 28, hWnd, (HMENU)ID_BTN_RESET, NULL, NULL);
+        hBtnTheme = CreateWindowW(L"BUTTON", L"🌓 明暗切换", WS_CHILD|WS_VISIBLE, rx+460, PADDING, 110, 28, hWnd, (HMENU)ID_BTN_THEME, NULL, NULL);
 
         hEditChapTitle = CreateWindowW(L"EDIT", L"", WS_CHILD|WS_VISIBLE|WS_BORDER, rx, 40, W-rx-PADDING, 24, hWnd, NULL, NULL, NULL);
         hEditChapContent = CreateWindowW(L"EDIT", L"", WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|ES_WANTRETURN, rx, 72, W-rx-PADDING, H-180, hWnd, NULL, NULL, NULL);
@@ -221,11 +230,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
     case WM_COMMAND: {
         switch (LOWORD(wParam)) {
-        case 101: SaveChapter(); break;
-        case 102: SaveProject(); break;
-        case 103: ExportTXT(); break;
-        case 104: ResetAll(); break;
-        case 105: ToggleTheme(); break;
+        case ID_BTN_SAVE_CHAP: SaveChapter(); break;
+        case ID_BTN_SAVE_PROJ: SaveProject(); break;
+        case ID_BTN_EXPORT: ExportTXT(); break;
+        case ID_BTN_RESET: ResetAll(); break;
+        case ID_BTN_THEME: ToggleTheme(); break;
         }
         // 章节列表点击
         if (HIWORD(wParam) == LBN_SELCHANGE) {
@@ -253,7 +262,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return 0;
 }
 
-// ===================== 程序入口（严格匹配宽字符类型） =====================
+// ===================== 程序入口（严格原生类型） =====================
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, PWSTR lpCmd, int nCmdShow) {
     (void)hPrevInst; (void)lpCmd;
 
@@ -261,7 +270,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, PWSTR lpCmd, int nCmdS
     INITCOMMONCONTROLSEX icex = {sizeof(icex), ICC_STANDARD_CLASSES};
     InitCommonControlsEx(&icex);
 
-    // 注册窗口类（全宽字符）
+    // 注册窗口类（严格宽字符类型）
     const wchar_t CLASS_NAME[] = L"NovelWin32";
     WNDCLASSW wc = {0};
     wc.lpfnWndProc = WndProc;
