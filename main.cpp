@@ -1,3 +1,7 @@
+// ========== 绝杀两行，放在最顶部！强制编译器读UTF-8源码！ ==========
+#pragma execution_character_set("utf-8")
+#pragma source_character_set("utf-8")
+
 #include <windows.h>
 #include <commctrl.h>
 #include <shlwapi.h>
@@ -23,7 +27,7 @@ HWND hMainWindow;
 HWND hEditNovelName, hEditWorldView, hEditCharacter, hEditOutline, hEditForeshadow, hEditInspire;
 HWND hListChapterBox;
 HWND hEditChapterTitle, hEditChapterContent;
-HWND hLabelWordCountCurr, hLabelWordCountTotal;
+HWND hLabelWordCountCurr, hLabelTotalWordCount;
 
 // ===================== 数据结构 =====================
 struct Chapter
@@ -40,8 +44,8 @@ const int LEFT_PANEL_WIDTH = 300;
 const int MID_PANEL_WIDTH = 200;
 const int CONTROL_PADDING = 8;
 
-// ===================== 宽字符<->UTF8互转 =====================
-std::string W2A(const std::wstring& wStr)
+// ===================== 宽字符转UTF8 =====================
+std::string WideToUtf8(const std::wstring& wStr)
 {
     if (wStr.empty()) return "";
     int nBytes = WideCharToMultiByte(CP_UTF8, 0, wStr.c_str(), (int)wStr.size(), NULL, 0, NULL, NULL);
@@ -77,7 +81,7 @@ void RefreshWordCount()
     }
     wchar_t totalText[64] = { 0 };
     swprintf(totalText, L"全书总字数：%d 字", totalCount);
-    SetWindowTextW(hLabelWordCountTotal, totalText);
+    SetWindowTextW(hLabelTotalWordCount, totalText);
 }
 
 // ===================== 章节操作 =====================
@@ -164,7 +168,7 @@ void ExportNovelToTxt()
     HANDLE hFile = CreateFileW(savePath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE)
     {
-        std::string utf8Content = W2A(fullContent);
+        std::string utf8Content = WideToUtf8(fullContent);
         DWORD writeSize = 0;
         WriteFile(hFile, utf8Content.c_str(), (DWORD)utf8Content.size(), &writeSize, NULL);
         CloseHandle(hFile);
@@ -210,7 +214,7 @@ void SaveNovelProject()
     HANDLE hFile = CreateFileW(savePath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE)
     {
-        std::string utf8Data = W2A(projectData);
+        std::string utf8Data = WideToUtf8(projectData);
         DWORD writeSize = 0;
         WriteFile(hFile, utf8Data.c_str(), (DWORD)utf8Data.size(), &writeSize, NULL);
         CloseHandle(hFile);
@@ -242,7 +246,7 @@ void ToggleDarkTheme()
     InvalidateRect(hMainWindow, NULL, TRUE);
 }
 
-// ===================== 窗口回调（全宽字符W版本，微软原生标准） =====================
+// ===================== 窗口回调 =====================
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -303,7 +307,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         hEditChapterContent = CreateWindowW(L"EDIT", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_WANTRETURN, rightX, 72, rightCtrlWidth, WIN_HEIGHT - 180, hWnd, NULL, NULL, NULL);
 
         hLabelWordCountCurr = CreateWindowW(L"STATIC", L"当前章节：0 字", WS_CHILD | WS_VISIBLE, rightX, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
-        hLabelWordCountTotal = CreateWindowW(L"STATIC", L"全书总字数：0 字", WS_CHILD | WS_VISIBLE, rightX + 220, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
+        hLabelTotalWordCount = CreateWindowW(L"STATIC", L"全书总字数：0 字", WS_CHILD | WS_VISIBLE, rightX + 220, WIN_HEIGHT - 90, 200, 20, hWnd, NULL, NULL, NULL);
         break;
     }
 
@@ -353,7 +357,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-// ===================== 程序入口（全宽字符，微软原生标准） =====================
+// ===================== 程序入口 =====================
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
     (void)hPrevInstance;
