@@ -18,8 +18,12 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      - name: 上传EXE
+      - name: 打包成单文件（解决缺少dll报错）
+        run: |
+          windeployqt build/Release/NovelWriter.exe
+
+      - name: 上传完整打包文件
         uses: actions/upload-artifact@v4
         with:
-          name: 小说创作器_Win64
-          path: build/Release/NovelWriter.exe
+          name: 小说创作器_完整单文件版
+          path: build/Release/
