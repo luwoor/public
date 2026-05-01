@@ -1,0 +1,25 @@
+name: Build 小说创作器
+on: push
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.6.2
+          host: windows
+          target: desktop
+
+      - name: CMake编译
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: 上传EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: 小说创作器_Win64
+          path: build/Release/NovelWriter.exe
